@@ -17,7 +17,9 @@ public class WebSocketController {
     // 当服务器有消息时，会对订阅了 @SendTo 中的路径的客户端发送消息
     @SendTo("/b")
     public Response say(Message message) {
-        return new Response("Welcome, " + message.getName() + "!");
+        String msg = "Welcome, " + message.getName() + "!";
+        System.out.println(msg);
+        return new Response(msg);
     }
 
     @MessageMapping("/group/{groupID}")
