@@ -55,7 +55,7 @@
             setConnected(true);
             console.log('Connected: ' + frame);
             stompClient.subscribe('/user/' + selfID + '/msg', function (response) {
-                showResponse(JSON.parse(response.body).response);
+                showResponse(JSON.parse(response.body).responseMessage);
             });
         });
     }

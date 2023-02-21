@@ -23,7 +23,7 @@ public class WebSocketController {
     }
 
     @MessageMapping("/group/{groupID}")
-    public void group(@DestinationVariable int groupID, Message message) {
+    public void group(@DestinationVariable String groupID, Message message) {
         Response response = new Response("Welcome to group " + groupID + ", " + message.getName() + "!");
         simpMessagingTemplate.convertAndSend("/g/" + groupID, response);
     }

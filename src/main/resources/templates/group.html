@@ -53,7 +53,7 @@
             setConnected(true);
             console.log('Connected: ' + frame);
             stompClient.subscribe('/g/' + groupId, function (response) {
-                showResponse(JSON.parse(response.body).response);
+                showResponse(JSON.parse(response.body).responseMessage);
             });
         });
     }
@@ -73,7 +73,8 @@
 
     function showResponse(message) {
         var response = $('#response');
-        response.html(message);
+<!--        response.html(message);-->
+        response.html(response.text() + '\r\n' + message);
     }
 </script>
 </body>
