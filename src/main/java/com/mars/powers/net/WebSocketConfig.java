@@ -1,18 +1,28 @@
 package com.mars.powers.net;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
-import org.springframework.web.socket.config.annotation.AbstractWebSocketMessageBrokerConfigurer;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
+import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
+
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Configuration
 // 启用 Websocket 的消息代理
 @EnableWebSocketMessageBroker
-public class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer {
+public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     // 注册 STOMP 协议的节点（Endpoint），并映射为指定的 URL
     // 我们使用 STOMP，所以不需要再实现 WebSocketHandler。
     // 实现 WebSocketHandler 的目的是接收和处理消息，STOMP 已经为我们做了这些。
+
+    @Autowired
+    private SecurityChannelInterceptor securityChannelInterceptor;
+
     @Override
     public void registerStompEndpoints(StompEndpointRegistry stompEndpointRegistry) {
         // 注册 STOMP 协议的节点，并指定使用 SockJS 协议
@@ -28,4 +38,10 @@ public class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer {
         // 配置点对点消息的前缀
         registry.setUserDestinationPrefix("/user");
     }
+
+    @Override
+    public void configureClientInboundChannel(ChannelRegistration registration) {
+        registration.interceptors(securityChannelInterceptor);
+    }
+
 }

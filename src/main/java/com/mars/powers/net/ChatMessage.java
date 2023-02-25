@@ -12,7 +12,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ChatMessage {
-    private int userID;
-    private int fromUserID;
+    private String userID;
+    private String fromUserID;
     private String message;
 }

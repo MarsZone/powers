@@ -4,8 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
+
+import java.util.Map;
 
 @Controller
 public class WebSocketController {
@@ -16,8 +19,9 @@ public class WebSocketController {
     @MessageMapping("/broadcast")
     // 当服务器有消息时，会对订阅了 @SendTo 中的路径的客户端发送消息
     @SendTo("/b")
-    public Response say(Message message) {
+    public Response say(SimpMessageHeaderAccessor headerAccessor, Message message) {
         String msg = "Welcome, " + message.getName() + "!";
+        Map<String, Object> attrs = headerAccessor.getSessionAttributes();
         System.out.println(msg);
         return new Response(msg);
     }
