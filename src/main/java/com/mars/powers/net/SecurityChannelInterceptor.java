@@ -1,7 +1,6 @@
 package com.mars.powers.net;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
@@ -19,25 +18,25 @@ public class SecurityChannelInterceptor implements ChannelInterceptor {
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
         if (StompCommand.CONNECT.equals(accessor.getCommand())){
-            String username=null;
+            String token = null;
+            String username = null;
             try {
 //                String token = accessor.getNativeHeader("Authorization").get(0);
                 //校验token
 //                JwtBean jwtBean = ApplicationContextUtils.getBean(JwtBean.class);
 //                username = jwtBean.getUsername(token);
-                String token = accessor.getSessionId();
-                username = token;
+                token = accessor.getSessionId();
             } catch (Exception e) {
                 e.printStackTrace();
                 log.error("token is error");
                 throw new IllegalStateException("The token is illegal");
             }
-            if(StringUtils.isEmpty(username)){
+            if(StringUtils.isEmpty(token)){
                 log.error("token is overtime");
                 throw new IllegalStateException("The token is illegal");
             }
-            accessor.setUser(new MyPrincipal(username));
-            log.info("【{}】用户上线了",username);
+            accessor.setUser(new ClientNode(token,token));
+            log.info("【{}】用户上线了",token);
         }else if(StompCommand.DISCONNECT.equals(accessor.getCommand())){
             log.info("【{}】用户下线了",accessor.getUser().getName());
         }

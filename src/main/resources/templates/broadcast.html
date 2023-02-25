@@ -41,7 +41,13 @@
     function connect() {
         var socket = new SockJS("/im");
         stompClient = Stomp.over(socket);
-        stompClient.connect({}, function (frame) {
+        var headers = {
+        login: 'mylogin',
+        passcode: 'mypasscode',
+        // additional header
+        'client-id': 'my-client-id'
+        };
+        stompClient.connect(headers, function (frame) {
             setConnected(true);
             console.log('Connected: ' + frame);
             stompClient.subscribe('/b', function (response) {
