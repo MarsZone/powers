@@ -1,5 +1,6 @@
 package com.mars.powers.net;
 
+import com.mars.powers.utils.UuidGen;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;
@@ -25,18 +26,21 @@ public class SecurityChannelInterceptor implements ChannelInterceptor {
                 //校验token
 //                JwtBean jwtBean = ApplicationContextUtils.getBean(JwtBean.class);
 //                username = jwtBean.getUsername(token);
-                token = accessor.getSessionId();
+//                username = UuidGen.generateShortUuid();
+                username = accessor.getSessionId();
+                token = (String) accessor.getSessionAttributes().get("sessionId");
             } catch (Exception e) {
                 e.printStackTrace();
                 log.error("token is error");
                 throw new IllegalStateException("The token is illegal");
             }
-            if(StringUtils.isEmpty(token)){
+            if(StringUtils.isEmpty(username)){
                 log.error("token is overtime");
                 throw new IllegalStateException("The token is illegal");
             }
-            accessor.setUser(new ClientNode(token,token));
-            log.info("【{}】用户上线了",token);
+            accessor.setUser(new ClientNode(username,token));
+//            accessor.addNativeHeader("uid",username);
+            log.info("【{}】用户上线了",username);
         }else if(StompCommand.DISCONNECT.equals(accessor.getCommand())){
             log.info("【{}】用户下线了",accessor.getUser().getName());
         }

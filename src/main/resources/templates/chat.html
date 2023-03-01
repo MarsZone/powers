@@ -53,7 +53,7 @@
         stompClient = Stomp.over(socket);
         stompClient.connect({}, function (frame) {
             setConnected(true);
-            console.log('Connected: ' + frame);
+            console.log('Connected: ' + frame.headers['user-name']);
             stompClient.subscribe('/user/' + selfID + '/msg', function (response) {
                 showResponse(JSON.parse(response.body).responseMessage);
             });
