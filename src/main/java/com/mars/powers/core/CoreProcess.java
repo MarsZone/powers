@@ -38,7 +38,9 @@ public class CoreProcess {
 //                .forEach(System.out::println);
         for(SimpUser simpUser : userRegistry.getUsers()){
             logger.info(simpUser.getName());
-            simpMessagingTemplate.convertAndSend("/b",new Response("通知"));
+//            simpMessagingTemplate.convertAndSend("/b",new Response("通知"));
+
+            simpMessagingTemplate.convertAndSend("/user/"+simpUser.getName()+"/msg",new Response("上线提醒"));
         }
 
         return "User Count:";
