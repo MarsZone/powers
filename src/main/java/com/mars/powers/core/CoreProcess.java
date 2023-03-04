@@ -1,22 +1,29 @@
 package com.mars.powers.core;
 
 
+import com.mars.powers.entity.Bee;
 import com.mars.powers.net.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.user.SimpUser;
 import org.springframework.messaging.simp.user.SimpUserRegistry;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Date;
+import java.util.List;
+
 @Service
 @RestController
 public class CoreProcess {
+    @Autowired
+    private MongoTemplate mongoTemplate;
     @Autowired
     SimpUserRegistry userRegistry;
     @Autowired
@@ -39,10 +46,8 @@ public class CoreProcess {
         for(SimpUser simpUser : userRegistry.getUsers()){
             logger.info(simpUser.getName());
 //            simpMessagingTemplate.convertAndSend("/b",new Response("通知"));
-
             simpMessagingTemplate.convertAndSend("/user/"+simpUser.getName()+"/msg",new Response("上线提醒"));
         }
-
         return "User Count:";
     }
 
