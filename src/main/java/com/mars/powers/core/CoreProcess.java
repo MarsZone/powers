@@ -2,6 +2,8 @@ package com.mars.powers.core;
 
 
 import com.mars.powers.entity.Bee;
+import com.mars.powers.entity.CommandParams;
+import com.mars.powers.net.ChatMessage;
 import com.mars.powers.net.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,17 +40,25 @@ public class CoreProcess {
 ////        logger.info("CoreLive:"+heartBeat+"_Time:"+System.currentTimeMillis());
 //        logger.info("Connect Count "+userRegistry.getUserCount());
 //    }
-    @RequestMapping("/hello")
-    public String hello(){
+    @RequestMapping("/command")
+    public String command(){
 //        userRegistry.getUsers().stream()
 //                .map(u -> u.getName())
 //                .forEach(System.out::println);
         for(SimpUser simpUser : userRegistry.getUsers()){
             logger.info(simpUser.getName());
 //            simpMessagingTemplate.convertAndSend("/b",new Response("通知"));
-            simpMessagingTemplate.convertAndSend("/user/"+simpUser.getName()+"/msg",new Response("上线提醒"));
+            Response response = new Response("上线检测");
+            response.setCommand(CommandEnum.C1000);
+            response.setParams(new CommandParams(120,21, 183,44));
+
+            simpMessagingTemplate.convertAndSend("/user/"+simpUser.getName()+"/msg",response);
         }
         return "User Count:";
+    }
+
+    public void responseProcess(ChatMessage chatMessage){
+        System.out.println(chatMessage.getMessage());
     }
 
 }

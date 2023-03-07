@@ -1,5 +1,6 @@
 package com.mars.powers.net;
 
+import com.mars.powers.core.CoreProcess;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -15,6 +16,8 @@ public class WebSocketController {
     @Autowired
     SimpMessagingTemplate simpMessagingTemplate;
 
+    @Autowired
+    CoreProcess coreProcess;
     // 当客户端向服务器发送请求时，通过 `@MessageMapping` 映射 /broadcast 这个地址
     @MessageMapping("/broadcast")
     // 当服务器有消息时，会对订阅了 @SendTo 中的路径的客户端发送消息
@@ -36,5 +39,8 @@ public class WebSocketController {
     public void chat(ChatMessage chatMessage) {
         Response response = new Response("Receive message from user " + chatMessage.getFromUserID() + ": " + chatMessage.getMessage());
         simpMessagingTemplate.convertAndSendToUser(String.valueOf(chatMessage.getUserID()), "/msg", response);
+        if(chatMessage.getUserID().equals("core")){
+            coreProcess.responseProcess(chatMessage);
+        }
     }
 }
