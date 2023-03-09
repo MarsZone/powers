@@ -48,16 +48,24 @@ public class CoreProcess {
         for(SimpUser simpUser : userRegistry.getUsers()){
             logger.info(simpUser.getName());
 //            simpMessagingTemplate.convertAndSend("/b",new Response("通知"));
-            Response response = new Response("上线检测");
+            Response response = new Response("命令执行");
+            //检测命令完成，后续优化下
             response.setCommand(CommandEnum.C1000);
             response.setParams(new CommandParams(120,21, 183,44));
+            //Todo 单个点击命令，序列点击命令
+            response.setCommand(CommandEnum.C2000);
+            response.setParams(new CommandParams(63,50,500,"点击菜单"));
+            //Todo 序列点击
 
             simpMessagingTemplate.convertAndSend("/user/"+simpUser.getName()+"/msg",response);
+            //全部完成后，MongoDB状态缓存
         }
         return "User Count:";
     }
 
+    //Todo 状态机
     public void responseProcess(ChatMessage chatMessage){
+        //TODO 返回数据优化
         System.out.println(chatMessage.getMessage());
     }
 
