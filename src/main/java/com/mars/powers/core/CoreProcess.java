@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -54,8 +55,15 @@ public class CoreProcess {
             response.setParams(new CommandParams(120,21, 183,44));
             //Todo 单个点击命令，序列点击命令
             response.setCommand(CommandEnum.C2000);
-            response.setParams(new CommandParams(63,50,500,"点击菜单"));
-            //Todo 序列点击
+            response.setParams(new CommandParams("点击菜单",63,50,500,1));
+            //Todo 序列点击..连续行为
+            response.setCommand(CommandEnum.C3000);
+            List<MessageBlock> blocks = new ArrayList<>();
+            MessageBlock block = new MessageBlock("库存界面",27,116,500);
+            MessageBlock block2 = new MessageBlock("选择矿石舱",125,550,1500,1);
+            blocks.add(block);
+            blocks.add(block2);
+            response.setParams(new CommandParams(blocks));
 
             simpMessagingTemplate.convertAndSend("/user/"+simpUser.getName()+"/msg",response);
             //全部完成后，MongoDB状态缓存
