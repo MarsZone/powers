@@ -92,10 +92,25 @@ public class CoreProcess {
             return ResultGenerator.getFailResult("查不到");
         }
     }
-    @RequestMapping("/checkConnect")
-    public Object checkConnect(HttpSession session){
-        String key = (String) session.getAttribute("key");
-        return ResultGenerator.getSuccessResult(key);
+    @RequestMapping(value = "/checkConnect",method = RequestMethod.POST)
+    public Object checkConnect(@RequestBody CoreParams params){
+        String key = params.getKey();
+        Bee bee = getBeeByCid(key);
+        if(bee!=null){
+            //执行命令，点击人物界面，查询角色名 1.执行两次点击。2.等待完成消息。 3.发出查看角色信息命令，等待返回文字。
+
+
+            return ResultGenerator.getSuccessResult("");
+        }else{
+            return ResultGenerator.getFailResult("校验失败");
+        }
+    }
+
+    private Bee getBeeByCid(String key){
+        Criteria condition = Criteria.where("cid").is(key);
+        Query query = new Query(condition);
+        Bee bee = mongoTemplate.findOne(query,Bee.class);
+        return bee;
     }
 
 
