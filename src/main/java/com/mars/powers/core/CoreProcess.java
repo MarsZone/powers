@@ -3,11 +3,14 @@ package com.mars.powers.core;
 
 import com.mars.powers.actions.CommandEnum;
 import com.mars.powers.actions.ProcessActions;
+import com.mars.powers.base.ResultGenerator;
 import com.mars.powers.entity.Bee;
 import com.mars.powers.entity.CommandParams;
 import com.mars.powers.net.ChatMessage;
 import com.mars.powers.net.Response;
-import com.mars.powers.utils.UuidGen;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +21,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.user.SimpUser;
 import org.springframework.messaging.simp.user.SimpUserRegistry;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,6 +76,28 @@ public class CoreProcess {
         }
         return "User Count:";
     }
+
+    @RequestMapping(value = "/cvConnect", method = RequestMethod.POST)
+    public Object cvConnect(@RequestBody CoreParams params, HttpSession session){
+        //取出session中的browser
+        String key = params.getKey();
+        //查一下是否存在，有就设置，没有就返回错误
+        Criteria condition = Criteria.where("cid").is(key);
+        Query query = new Query(condition);
+        Bee bee = mongoTemplate.findOne(query,Bee.class);
+        if(bee!=null){
+            session.setAttribute("key",params.getKey());
+            return ResultGenerator.getSuccessResult();
+        }else{
+            return ResultGenerator.getFailResult("查不到");
+        }
+    }
+    @RequestMapping("/checkConnect")
+    public Object checkConnect(HttpSession session){
+        String key = (String) session.getAttribute("key");
+        return ResultGenerator.getSuccessResult(key);
+    }
+
 
     //Todo 状态机
     public void responseProcess(ChatMessage chatMessage){
