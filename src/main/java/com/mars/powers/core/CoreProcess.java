@@ -83,6 +83,7 @@ public class CoreProcess {
             String cid = getCid(chatMessage.getFromUserID());
             if(!cid.equals("")){
                 Response response = new Response("密码:"+cid);
+                simpMessagingTemplate.convertAndSend("/user/"+chatMessage.getFromUserID()+"/msg",response);
             }
         }
     }
@@ -94,7 +95,7 @@ public class CoreProcess {
         if(bee!=null){
             return bee.getCid();
         }else{
-            processActions.sendError("查询失败");
+            processActions.sendError("查询失败",name);
         }
         return "";
     }
