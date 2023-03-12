@@ -1,7 +1,8 @@
-package com.mars.powers.core;
+package com.mars.powers.actions;
 
 public class CommandEnum {
     public static boolean isDebug = true;
+    public static String C10="10";
     /**
      * 输入坐标，查询返回区域内文字
      */

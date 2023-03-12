@@ -1,6 +1,6 @@
 package com.mars.powers.entity;
 
-import com.mars.powers.core.CommandEnum;
+import com.mars.powers.actions.CommandEnum;
 import com.mars.powers.core.MessageBlock;
 import lombok.Data;
 
@@ -15,8 +15,12 @@ public class CommandParams {
     int delay;
     int hasNext;
     String eventName;
+    String content;
 
     List<MessageBlock> blocks;
+    public CommandParams(String content){
+        this.content = content;
+    }
     public CommandParams(int x1,int y1,int x2,int y2){
         this.x1= x1;this.x2 = x2;
         this.y1 = y1;this.y2 = y2;

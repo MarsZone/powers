@@ -1,10 +1,13 @@
 package com.mars.powers.core;
 
 
+import com.mars.powers.actions.CommandEnum;
+import com.mars.powers.actions.ProcessActions;
 import com.mars.powers.entity.Bee;
 import com.mars.powers.entity.CommandParams;
 import com.mars.powers.net.ChatMessage;
 import com.mars.powers.net.Response;
+import com.mars.powers.utils.UuidGen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +22,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Service
@@ -27,6 +29,8 @@ import java.util.List;
 public class CoreProcess {
     @Autowired
     private MongoTemplate mongoTemplate;
+    @Autowired
+    ProcessActions processActions;
     @Autowired
     SimpUserRegistry userRegistry;
     @Autowired
@@ -74,7 +78,25 @@ public class CoreProcess {
     //Todo 状态机
     public void responseProcess(ChatMessage chatMessage){
         //TODO 返回数据优化
-        System.out.println(chatMessage.getMessage());
+//        System.out.println(chatMessage.getMessage());
+        if(chatMessage.getMessage().equals("C666")){
+            String cid = getCid(chatMessage.getFromUserID());
+            if(!cid.equals("")){
+                Response response = new Response("密码:"+cid);
+            }
+        }
+    }
+
+    public String getCid(String name){
+        Criteria condition = Criteria.where("name").is(name);
+        Query query = new Query(condition);
+        Bee bee = mongoTemplate.findOne(query,Bee.class);
+        if(bee!=null){
+            return bee.getCid();
+        }else{
+            processActions.sendError("查询失败");
+        }
+        return "";
     }
 
 }

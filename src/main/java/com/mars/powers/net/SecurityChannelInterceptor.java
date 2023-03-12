@@ -51,11 +51,12 @@ public class SecurityChannelInterceptor implements ChannelInterceptor {
 //                throw new IllegalStateException("The token is illegal");
 //            }
             if(username!=null){
-                accessor.setUser(new ClientNode(username,token));
-                setOnlineCacheData(username,token);
+                ClientNode clientNode = new ClientNode(username,token,getCid());
+                accessor.setUser(clientNode);
+                setOnlineCacheData(clientNode);
                 log.info("【{}】用户上线了",username);
             }else{
-                accessor.setUser(new ClientNode(token,"匿名用户"));
+                accessor.setUser(new ClientNode(token,"匿名用户",""));
                 log.info("【{}】匿名用户上线了",token);
             }
 //            accessor.addNativeHeader("uid",username);
@@ -69,10 +70,23 @@ public class SecurityChannelInterceptor implements ChannelInterceptor {
         return message;
     }
 
-    public void setOnlineCacheData(String username,String token){
+    public String getCid(){
+        String u4d = UuidGen.generateShortUuid().substring(0,4);
+        Criteria condition = Criteria.where("cid").is(u4d);
+        Query query = new Query(condition);
+        Bee bee = mongoTemplate.findOne(query,Bee.class);
+        if(bee==null){
+            return u4d;
+        }else{
+            return getCid();
+        }
+    }
+
+    public void setOnlineCacheData(ClientNode clientNode){
         Bee bee = new Bee();
-        bee.setName(username);
-        bee.setToken(token);
+        bee.setName(clientNode.getName());
+        bee.setToken(clientNode.getToken());
+        bee.setCid(clientNode.getCid());
         bee.setStatus("online");
         bee.setCreateDate(new Date());
         Bee user1 = mongoTemplate.insert(bee);
