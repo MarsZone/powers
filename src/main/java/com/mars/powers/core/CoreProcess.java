@@ -4,6 +4,8 @@ package com.mars.powers.core;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mars.powers.actions.CommandEnum;
+import com.mars.powers.actions.ControlProcessActions;
+import com.mars.powers.actions.MongoTools;
 import com.mars.powers.actions.ProcessActions;
 import com.mars.powers.base.ResultGenerator;
 import com.mars.powers.entity.Bee;
@@ -31,13 +33,15 @@ import java.util.List;
 @RestController
 public class CoreProcess {
     @Autowired
-    private MongoTemplate mongoTemplate;
+    MongoTools mongoTools;
     @Autowired
     ProcessActions processActions;
     @Autowired
     SimpUserRegistry userRegistry;
     @Autowired
     SimpMessagingTemplate simpMessagingTemplate;
+    @Autowired
+    ControlProcessActions controlProcessActions;
 
     private static Logger logger = LoggerFactory.getLogger("core");
     private static long heartBeat = 0;
@@ -83,9 +87,7 @@ public class CoreProcess {
         //取出session中的browser
         String key = params.getKey();
         //查一下是否存在，有就设置，没有就返回错误
-        Criteria condition = Criteria.where("cid").is(key);
-        Query query = new Query(condition);
-        Bee bee = mongoTemplate.findOne(query,Bee.class);
+        Bee bee = mongoTools.getBeeByCid(key);
         if(bee!=null){
             session.setAttribute("key",params.getKey());
             //给Bee指令，关闭当前窗口
@@ -97,28 +99,13 @@ public class CoreProcess {
     }
     @RequestMapping(value = "/checkConnect",method = RequestMethod.POST)
     public Object checkConnect(@RequestBody CoreParams params) throws InterruptedException {
-        String key = params.getKey();
-        Bee bee = getBeeByCid(key);
-        if(bee!=null){
-            //执行命令，点击人物界面，查询角色名 1.执行两次点击。2.等待完成消息。 3.发出查看角色信息命令，等待返回文字。
-            String name = bee.getName();
-            processActions.sendOpenCharView(name);
-            Thread.sleep(3500);
-            processActions.sendGetUserName(name);
-            Thread.sleep(1500);
-            Response response = new Response();
-            response.setCommand("C1020");
-            response.setContent("6000");
-            return ResultGenerator.getSuccessResult(response);
-        }else{
-            return ResultGenerator.getFailResult("校验失败");
-        }
+        return controlProcessActions.checkConnect(params);
     }
 
     @RequestMapping(value = "/getUserName",method = RequestMethod.POST)
     public Object getUserName(@RequestBody CoreParams params) throws InterruptedException {
         String key = params.getKey();
-        Bee bee = getBeeByCid(key);
+        Bee bee = mongoTools.getBeeByCid(key);
         if(bee!=null){
             return ResultGenerator.getSuccessResult(bee.getUserName());
         }else{
@@ -126,51 +113,27 @@ public class CoreProcess {
         }
     }
 
-
     //Todo 状态机
     public void responseProcess(ChatMessage chatMessage) throws JsonProcessingException {
         //TODO 返回数据优化
 //        System.out.println(chatMessage.getMessage());
+        //处理Bee返回的命令
         ObjectMapper mapper = new ObjectMapper();
         Response receive = mapper.readValue(chatMessage.getMessage(),Response.class);
+        //这个是，应对1000命令，查询区域内文字的
         if(receive.getCommand().equals("C1010")){
-            Bee bee = getBeeByUname(chatMessage.getFromUserID());
+            Bee bee = mongoTools.getBeeByUname(chatMessage.getFromUserID());
             bee.setUserName(receive.getContent());
-            Query query = new Query(Criteria.where("_id").is(bee.getId()));
-            Update update = new Update().set("userName", bee.getUserName());
-            mongoTemplate.updateFirst(query, update, Bee.class);
+            mongoTools.updateByBee(bee);
         }
+        //这个是，Bee展示他自己的密码编号
         if(receive.getCommand().equals("C666")){
-            String cid = getCid(chatMessage.getFromUserID());
+            String cid = mongoTools.getCid(chatMessage.getFromUserID());
             if(!cid.equals("")){
                 Response response = new Response("密码:"+cid);
                 simpMessagingTemplate.convertAndSend("/user/"+chatMessage.getFromUserID()+"/msg",response);
             }
         }
-    }
-
-    private Bee getBeeByUname(String uname){
-        Criteria condition = Criteria.where("name").is(uname);
-        Query query = new Query(condition);
-        Bee bee = mongoTemplate.findOne(query,Bee.class);
-        return bee;
-    }
-    private Bee getBeeByCid(String key){
-        Criteria condition = Criteria.where("cid").is(key);
-        Query query = new Query(condition);
-        Bee bee = mongoTemplate.findOne(query,Bee.class);
-        return bee;
-    }
-    public String getCid(String name){
-        Criteria condition = Criteria.where("name").is(name);
-        Query query = new Query(condition);
-        Bee bee = mongoTemplate.findOne(query,Bee.class);
-        if(bee!=null){
-            return bee.getCid();
-        }else{
-            processActions.sendMessage("查询失败",name);
-        }
-        return "";
     }
 
 }

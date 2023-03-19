@@ -24,6 +24,13 @@ public class ProcessActions {
 
         simpMessagingTemplate.convertAndSend("/user/"+uname+"/msg",response);
     }
+    public void sendGetUserName(String user){
+        Response response = new Response("命令执行");
+        //检测命令完成，后续优化下
+        response.setCommand(CommandEnum.C1000);
+        response.setParams(new CommandParams(702,124, 886,170,"用户名"));
+        simpMessagingTemplate.convertAndSend("/user/"+user+"/msg",response);
+    }
     public void sendCloseCmdPanel(String user){
         Response response = new Response("命令执行");
         response.setCommand(CommandEnum.C2000);
@@ -42,11 +49,5 @@ public class ProcessActions {
         response.setParams(new CommandParams(blocks));
         simpMessagingTemplate.convertAndSend("/user/"+user+"/msg",response);
     }
-    public void sendGetUserName(String user){
-        Response response = new Response("命令执行");
-        //检测命令完成，后续优化下
-        response.setCommand(CommandEnum.C1000);
-        response.setParams(new CommandParams(702,124, 886,170,"用户名"));
-        simpMessagingTemplate.convertAndSend("/user/"+user+"/msg",response);
-    }
+
 }
