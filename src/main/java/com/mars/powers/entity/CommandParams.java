@@ -16,14 +16,19 @@ public class CommandParams {
     int hasNext;
     String eventName;
     String content;
+    String desc;
+
+    public static int NoNext = 1;
+    public static int hasNextCmd = 0;
 
     List<MessageBlock> blocks;
     public CommandParams(String content){
         this.content = content;
     }
-    public CommandParams(int x1,int y1,int x2,int y2){
+    public CommandParams(int x1,int y1,int x2,int y2,String desc){
         this.x1= x1;this.x2 = x2;
         this.y1 = y1;this.y2 = y2;
+        this.desc = desc;
     }
     public CommandParams(String eventName,int x1,int y1,int delay,int hasNext){
         this.x1 = x1;

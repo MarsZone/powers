@@ -1,5 +1,6 @@
 package com.mars.powers.net;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mars.powers.core.CoreProcess;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -36,7 +37,7 @@ public class WebSocketController {
     }
 
     @MessageMapping("/chat")
-    public void chat(ChatMessage chatMessage) {
+    public void chat(ChatMessage chatMessage) throws JsonProcessingException {
         Response response = new Response("Receive message from user " + chatMessage.getFromUserID() + ": " + chatMessage.getMessage());
         simpMessagingTemplate.convertAndSendToUser(String.valueOf(chatMessage.getUserID()), "/msg", response);
         if(chatMessage.getUserID().equals("core")){

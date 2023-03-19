@@ -12,6 +12,7 @@ public class Bee {
     @Id
     String id;
     String name;
+    String userName;
     String cid;
     String token;
     Date createDate;
