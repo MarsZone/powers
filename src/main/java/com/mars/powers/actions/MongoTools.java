@@ -6,7 +6,9 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.stereotype.Component;
 
+@Component
 public class MongoTools {
     @Autowired
     MongoTemplate mongoTemplate;
@@ -40,6 +42,11 @@ public class MongoTools {
     public void updateByBee(Bee bee){
         Query query = new Query(Criteria.where("_id").is(bee.getId()));
         Update update = new Update().set("userName", bee.getUserName());
+        mongoTemplate.updateFirst(query, update, Bee.class);
+    }
+    public void updateCacheByBee(Bee bee){
+        Query query = new Query(Criteria.where("_id").is(bee.getId()));
+        Update update = new Update().set("checkCache", bee.getCheckCache());
         mongoTemplate.updateFirst(query, update, Bee.class);
     }
 }

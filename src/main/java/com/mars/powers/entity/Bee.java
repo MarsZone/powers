@@ -18,4 +18,5 @@ public class Bee {
     Date createDate;
     Date offlineDate;
     String status;
+    String checkCache;
 }

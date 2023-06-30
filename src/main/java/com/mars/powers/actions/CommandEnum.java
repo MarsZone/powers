@@ -13,4 +13,9 @@ public class CommandEnum {
     public static String C2000 = "2000";
 
     public static String C3000 = "3000";
+
+    /**
+     * 校验事件,角色页面是否打开
+     */
+    public static String CK1000="CK1000";
 }

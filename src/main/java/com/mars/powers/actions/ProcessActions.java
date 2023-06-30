@@ -16,19 +16,27 @@ public class ProcessActions {
     SimpMessagingTemplate simpMessagingTemplate;
 
     //展示信息
-    public void sendMessage(String message, String uname){
+    public void sendMessage(String message, String user){
         Response response = new Response("命令执行");
         //检测命令完成，后续优化下
         response.setCommand(CommandEnum.C10);
         response.setParams(new CommandParams(message));
 
-        simpMessagingTemplate.convertAndSend("/user/"+uname+"/msg",response);
+        simpMessagingTemplate.convertAndSend("/user/"+user+"/msg",response);
     }
+    public void sendCharViewIsOpenCheck(String user){
+        Response response = new Response("命令执行");
+        //检测命令完成，后续优化下
+        response.setCommand(CommandEnum.CK1000);
+        response.setParams(new CommandParams(134,25, 201,58,"人物面板"));
+        simpMessagingTemplate.convertAndSend("/user/"+user+"/msg",response);
+    }
+
     public void sendGetUserName(String user){
         Response response = new Response("命令执行");
         //检测命令完成，后续优化下
         response.setCommand(CommandEnum.C1000);
-        response.setParams(new CommandParams(702,124, 886,170,"用户名"));
+        response.setParams(new CommandParams(703,123, 883,173,"用户名"));
         simpMessagingTemplate.convertAndSend("/user/"+user+"/msg",response);
     }
     public void sendCloseCmdPanel(String user){
@@ -49,5 +57,14 @@ public class ProcessActions {
         response.setParams(new CommandParams(blocks));
         simpMessagingTemplate.convertAndSend("/user/"+user+"/msg",response);
     }
+
+    public void sendClosePanel(String user){
+        Response response = new Response("命令执行");
+        response.setCommand(CommandEnum.C2000);
+        response.setParams(new CommandParams("关闭面板",1232,38,500,CommandParams.NoNext));
+        simpMessagingTemplate.convertAndSend("/user/"+user+"/msg",response);
+    }
+
+
 
 }

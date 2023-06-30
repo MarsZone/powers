@@ -16,10 +16,6 @@ import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.user.SimpUser;
 import org.springframework.messaging.simp.user.SimpUserRegistry;
@@ -113,6 +109,11 @@ public class CoreProcess {
         }
     }
 
+    @RequestMapping(value = "/closePanel",method = RequestMethod.GET)
+    public void closePanel(@RequestParam String key){
+        controlProcessActions.closePanel(key);
+    }
+
     //Todo 状态机
     public void responseProcess(ChatMessage chatMessage) throws JsonProcessingException {
         //TODO 返回数据优化
@@ -133,6 +134,16 @@ public class CoreProcess {
                 Response response = new Response("密码:"+cid);
                 simpMessagingTemplate.convertAndSend("/user/"+chatMessage.getFromUserID()+"/msg",response);
             }
+        }
+        //校验结果处理
+        if(receive.getCommand().equals("CKR1000")){
+            Bee bee = mongoTools.getBeeByUname(chatMessage.getFromUserID());
+            if(receive.getContent().equals("人物")){
+                bee.setCheckCache("人物面板开启");
+            }else{
+                bee.setCheckCache("人物面板未开启");
+            }
+            mongoTools.updateCacheByBee(bee);
         }
     }
 
