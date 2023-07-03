@@ -19,4 +19,7 @@ public class Bee {
     Date offlineDate;
     String status;
     String checkCache;
+    String action;
+    String actionNode;
+    String industrialShipIsFull;
 }

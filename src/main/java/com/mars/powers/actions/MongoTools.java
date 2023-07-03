@@ -38,6 +38,13 @@ public class MongoTools {
         }
         return "";
     }
+    public void saveActions(Bee bee){
+        Query query = new Query(Criteria.where("_id").is(bee.getId()));
+        Update update = Update.update("action",bee.getAction());
+        update.set("actionNode",bee.getActionNode());
+        update.set("industrialShipIsFull",bee.getIndustrialShipIsFull());
+        mongoTemplate.updateFirst(query, update, Bee.class);
+    }
 
     public void updateByBee(Bee bee){
         Query query = new Query(Criteria.where("_id").is(bee.getId()));

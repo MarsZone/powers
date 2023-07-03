@@ -24,6 +24,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Service
 @RestController
@@ -100,8 +102,7 @@ public class CoreProcess {
 
     @RequestMapping(value = "/getUserName",method = RequestMethod.POST)
     public Object getUserName(@RequestBody CoreParams params) throws InterruptedException {
-        String key = params.getKey();
-        Bee bee = mongoTools.getBeeByCid(key);
+        Bee bee = mongoTools.getBeeByCid(params.getKey());
         if(bee!=null){
             return ResultGenerator.getSuccessResult(bee.getUserName());
         }else{
@@ -109,6 +110,18 @@ public class CoreProcess {
         }
     }
 
+    @RequestMapping(value = "/startMining",method = RequestMethod.POST)
+    public Object startMining(@RequestBody CoreParams params) throws InterruptedException {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            try {
+                controlProcessActions.startMining(params,executor);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        return ResultGenerator.getSuccessResult("已启动挖矿");
+    }
     @RequestMapping(value = "/closePanel",method = RequestMethod.GET)
     public void closePanel(@RequestParam String key){
         controlProcessActions.closePanel(key);
@@ -127,6 +140,11 @@ public class CoreProcess {
             bee.setUserName(receive.getContent());
             mongoTools.updateByBee(bee);
         }
+        if(receive.getCommand().equals("C100")){
+            Bee bee = mongoTools.getBeeByUname(chatMessage.getFromUserID());
+            bee.setActionNode(receive.getContent());
+            mongoTools.saveActions(bee);
+        }
         //这个是，Bee展示他自己的密码编号
         if(receive.getCommand().equals("C666")){
             String cid = mongoTools.getCid(chatMessage.getFromUserID());
@@ -135,7 +153,7 @@ public class CoreProcess {
                 simpMessagingTemplate.convertAndSend("/user/"+chatMessage.getFromUserID()+"/msg",response);
             }
         }
-        //校验结果处理
+        //校验结果处理 人名
         if(receive.getCommand().equals("CKR1000")){
             Bee bee = mongoTools.getBeeByUname(chatMessage.getFromUserID());
             if(receive.getContent().equals("人物")){
@@ -144,6 +162,12 @@ public class CoreProcess {
                 bee.setCheckCache("人物面板未开启");
             }
             mongoTools.updateCacheByBee(bee);
+        }
+        //校验是否满仓
+        if(receive.getCommand().equals("CKR2000")){
+            Bee bee = mongoTools.getBeeByUname(chatMessage.getFromUserID());
+            bee.setIndustrialShipIsFull(receive.getContent());
+            mongoTools.saveActions(bee);
         }
     }
 

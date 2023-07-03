@@ -18,4 +18,8 @@ public class CommandEnum {
      * 校验事件,角色页面是否打开
      */
     public static String CK1000="CK1000";
+    /**
+     * 校验事件,舰船仓库是否满仓
+     */
+    public static String CK2000="CK2000";
 }
